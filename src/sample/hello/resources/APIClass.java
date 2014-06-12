@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.List;
 
 import twitter4j.GeoLocation;
+import twitter4j.JSONArray;
+import twitter4j.JSONException;
+import twitter4j.JSONObject;
 import twitter4j.Query;
 import twitter4j.QueryResult;
 import twitter4j.Status;
@@ -12,11 +15,8 @@ import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.auth.AccessToken;
 import twitter4j.conf.ConfigurationBuilder;
-import twitter4j.internal.org.json.JSONArray;
-import twitter4j.internal.org.json.JSONException;
-import twitter4j.internal.org.json.JSONObject;
 
-public class TweetUsingTwitter4jExample {
+public class APIClass {
 	
 	static String consumerKey = "d99MmHjII02ZGBCRoBu8A";
 	 
@@ -31,22 +31,14 @@ public class TweetUsingTwitter4jExample {
 		
         }
 	
-	public static JSONArray getTweets(String coordinates) throws IOException, TwitterException, JSONException {
-		ConfigurationBuilder cb = new ConfigurationBuilder();
-		cb.setJSONStoreEnabled(true);
+	public static JSONArray getTweets(String coordinates) throws IOException, TwitterException, JSONException { //Method that contacts twitter.
+		ConfigurationBuilder cb = new ConfigurationBuilder(); //Configuration builder for bulding an instance of TwtterFactory.
+		cb.setJSONStoreEnabled(true); //Allow JSON
 		
-		Twitter twitter = new TwitterFactory(cb.build()).getInstance();
+		Twitter twitter = new TwitterFactory(cb.build()).getInstance(); //Create TwitterFactory object.
 		
-		//Instantiate a re-usable and thread-safe factory
-	   // TwitterFactory twitterFactory = new TwitterFactory();
+	    twitter.setOAuthConsumer(consumerKey, consumerSecret); //Set OAuth keys for twitter security.
 
-	    //Instantiate a new Twitter instance
-	   // Twitter twitter = twitterFactory.getInstance();
-
-	    //setup OAuth Consumer Credentials
-	    twitter.setOAuthConsumer(consumerKey, consumerSecret);
-
-	    //setup OAuth Access Token
 	    twitter.setOAuthAccessToken(new AccessToken(accessToken, accessTokenSecret));
 		
 	    List<Status> tweets = null;
@@ -67,16 +59,15 @@ public class TweetUsingTwitter4jExample {
 	    System.out.println(lat2);
 	    System.out.println(lon2);
 	    
-	    //FilterQuery filter = new FilterQuery();
-	    
-	    
+	    GeoLocation loc = new GeoLocation(lat2, lon2);
+	    	    
         JSONArray array = new JSONArray();
-
+        
 	    
 		try {
-            Query query = new Query("c09673873");
+            Query query = new Query();
+            query.setGeoCode(loc, 1, query.KILOMETERS );
 
-            //GeoQuery geo = new GeoQuery()
             QueryResult result;
             result = twitter.search(query);
             tweets = result.getTweets();
@@ -97,10 +88,7 @@ public class TweetUsingTwitter4jExample {
             	String json = obj.toString();
             	array.put(obj);
             	
-            	//String json = DataObjectFactory.getRawJSON(tweet);
-            	//String json = "@" + tweet.getUser().getScreenName() + "-" + tweet.getText() + "-" + tweet.getGeoLocation();
             	System.out.println(json);
-                //System.out.println("@" + tweet.getUser().getScreenName() + " - " + tweet.getText() + " - " + tweet.getGeoLocation());
             }
             System.out.println(array);
         }
